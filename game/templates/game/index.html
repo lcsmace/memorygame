@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Memória de Pokémon - Dois Jogadores</title>
+    <style>
+      @font-face {
+          font-family: 'Pokemon';
+          src: url('game/fonts/Pokemon-solid.ttf') format('truetype');
+      }
+  
+      .pokemon-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Colunas adaptáveis */
+          gap: 10px; /* Espaçamento igual entre as cartas */
+          justify-items: center; /* Centralizar as cartas horizontalmente */
+      }
+  
+      .pokemon-item {
+          text-align: center;
+          perspective: 1000px;
+      }
+  
+      .pokemon-card {
+          width: 100px;
+          height: 100px;
+          position: relative;
+          transform-style: preserve-3d;
+          transition: transform 0.6s;
+      }
+  
+      .pokemon-card.flip {
+          transform: rotateY(180deg); /* Virar a carta */
+      }
+  
+      .pokemon-front,
+      .pokemon-back {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          backface-visibility: hidden;
+      }
+  
+      .pokemon-back {
+          transform: rotateY(180deg);
+      }
+  
+      img {
+          width: 100%;
+          height: 100%;
+      }
+  
+      .pokemon-card.matched {
+          pointer-events: none; /* Desabilita interação para cartas já acertadas */
+      }
+  
+      /* Estilo para o título e placar */
+      .pokemon-title,
+      .pokemon-score {
+          font-family: 'Pokemon', sans-serif; /* Fonte Pokémon */
+          color: #3B4CCA; /* Azul estilo Pokémon */
+          text-align: center;
+      }
+  
+      .pokemon-title {
+          font-size: 2em; /* Ajuste o tamanho conforme necessário */
+          margin-bottom: 10px;
+      }
+  
+      .pokemon-score {
+          font-size: 1.2em;
+          margin-bottom: 20px;
+      }
+  </style>
+  </head>
+  <body>
+      <!-- Título do jogo -->
+      <h1 class="pokemon-title">Jogo da Memória de Pokémon - Dois Jogadores</h1>
+      
+      <!-- Placar do jogo -->
+      <div class="pokemon-score">
+          <p id="message"></p>
+          <p>Jogador 1: <span id="score1">0</span> pontos | Jogador 2: <span id="score2">0</span> pontos</p>
+          <p>Vez do jogador: <span id="current-player">1</span></p>
+      </div>
+  
+      <!-- Cartas Pokémon -->
+      <div class="pokemon-grid">
+          {% for pokemon in pokemon_data %}
+              <div class="pokemon-item">
+                  <div class="pokemon-card" data-pokemon="{{ pokemon.name }}" data-evolution="{{ pokemon.evolution_chain }}" onclick="flipCard(this)">
+                      <!-- Frente da carta -->
+                      <div class="pokemon-front">
+                          <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/41d3ac77-2823-4e18-8910-a48de63acf87/d8xl0ja-ca02368b-643f-42f4-9721-f3895e14690d.jpg/v1/fit/w_750,h_1050,q_70,strp/pokemon_card_back_image_by_devin745_d8xl0ja-375w-2x.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MTA1MCIsInBhdGgiOiJcL2ZcLzQxZDNhYzc3LTI4MjMtNGUxOC04OTEwLWE0OGRlNjNhY2Y4N1wvZDh4bDBqYS1jYTAyMzY4Yi02NDNmLTQyZjQtOTcyMS1mMzg5NWUxNDY5MGQuanBnIiwid2lkdGgiOiI8PTc1MCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.P4uw3BnS-Y2ZPEr_aRP2DDZgtkXWpZ6bpbv1cn_OJKs" alt="Verso da carta">
+                      </div>
+                      <!-- Verso da carta (imagem do Pokémon) -->
+                      <div class="pokemon-back">
+                          <img src="{{ pokemon.image }}" alt="{{ pokemon.name }}">
+                      </div>
+                  </div>
+              </div>
+          {% endfor %}
+      </div>
+    <script>
+        let flippedCards = [];
+        let matchedCards = []; // Guardar as cartas acertadas
+        let lockBoard = false;
+        let currentPlayer = 1; // Começa com o jogador 1
+        let score1 = 0;
+        let score2 = 0;
+        let triesToCompleteChain = false; // Flag para controlar a jogada extra
+        let currentChain = []; // Armazena a cadeia de evolução atual
+        const eeveeFamily = ["Eevee", "Vaporeon", "Flareon", "Jolteon"]; // Excluídos da regra de "sem evolução"
+    
+        // Função para atualizar a pontuação e a vez do jogador
+        function updateScore(points) {
+            if (currentPlayer === 1) {
+                score1 += points;
+                document.getElementById('score1').textContent = score1;
+            } else {
+                score2 += points;
+                document.getElementById('score2').textContent = score2;
+            }
+        }
+    
+        function switchPlayer() {
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            document.getElementById('current-player').textContent = currentPlayer;
+        }
+    
+        // Função para virar a carta
+        function flipCard(cardElement) {
+            if (lockBoard || cardElement.classList.contains('flip')) return;
+    
+            cardElement.classList.add('flip');
+            flippedCards.push(cardElement);
+    
+            if (flippedCards.length === 2 || (triesToCompleteChain && flippedCards.length === 3)) {
+                checkForMatch();
+            }
+        }
+    
+        // Verifica se as cartas viradas pertencem à mesma cadeia de evolução ou são independentes
+        function checkForMatch() {
+        lockBoard = true;
+
+        const pokemon1 = flippedCards[0].getAttribute('data-pokemon');
+        const pokemon2 = flippedCards[1].getAttribute('data-pokemon');
+        const evolution1 = flippedCards[0].getAttribute('data-evolution').replace(/[\[\]'"]/g, '').split(',').map(p => p.trim());
+        const evolution2 = flippedCards[1].getAttribute('data-evolution').replace(/[\[\]'"]/g, '').split(',').map(p => p.trim());
+
+        // Verifica se as duas cartas não têm evolução (são Pokémon sem evolução)
+        if (evolution1.length === 1 && evolution2.length === 1) {
+            matchedCards.push(...flippedCards); // Adiciona as cartas à lista de acertadas
+            updateScore(1); // Pontua 1 ponto por cartas sem evolução
+            resetBoard();
+            switchPlayer(); // Troca de jogador
+        } else if (evolution1.some(evo => evolution2.includes(evo))) {
+            // Correspondência de evolução, vamos checar o tamanho da cadeia
+            matchedCards.push(...flippedCards);
+
+            // Construir a cadeia completa com as evoluções dos dois Pokémon
+            currentChain = [...new Set([...evolution1, ...evolution2])];
+            const chainLength = currentChain.length; // Tamanho da cadeia de evolução
+
+            if (chainLength === 2) {
+                // Pontua 2 pontos por cadeias duplas
+                updateScore(2);
+                resetBoard();
+                switchPlayer();
+            } else if (chainLength >= 3) {
+                // Se a cadeia tiver 3 ou mais estágios, dá uma chance extra antes de pontuar
+                if (!triesToCompleteChain) {
+                    // Primeira tentativa: o jogador ganha mais uma chance para completar a cadeia
+                    triesToCompleteChain = true;
+                    lockBoard = false; // Libera o tabuleiro para a próxima jogada
+                } else {
+                    // Verificar se a terceira ou quarta carta pertence à cadeia correta de evolução
+                    const nextPokemon = flippedCards[flippedCards.length - 1].getAttribute('data-pokemon');
+
+                    // Console log para depuração
+                    console.log('Current Chain:', currentChain);
+                    console.log('Next Pokemon:', nextPokemon);
+
+                    // Verificar se o próximo Pokémon faz parte da cadeia correta
+                    if (currentChain.includes(nextPokemon)) {
+                        // Se a carta faz parte da cadeia de evolução correta, pontua
+                        if (flippedCards.length === 3 && chainLength === 3) {
+                            updateScore(3); // Pontua 3 pontos por uma cadeia tripla completa
+                        } else if (flippedCards.length === 4 && chainLength === 4) {
+                            updateScore(4); // Pontua 4 pontos por uma cadeia quádrupla completa
+                        }
+                        resetBoard();
+                        switchPlayer();
+                    } else {
+                        // Se a próxima carta não pertence à cadeia, desvirar as cartas
+                        unflipCards();
+                    }
+                }
+            }
+        } else {
+            unflipCards();
+        }
+    }
+    
+        function resetBoard() {
+            flippedCards = [];
+            lockBoard = false;
+            triesToCompleteChain = false; // Resetar a flag de jogada extra
+            currentChain = []; // Resetar a cadeia atual
+        }
+    
+        function unflipCards() {
+            setTimeout(() => {
+                flippedCards.forEach(card => card.classList.remove('flip')); // Desvira as cartas se não houver correspondência
+                resetBoard();
+                switchPlayer(); // Troca de jogador
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
