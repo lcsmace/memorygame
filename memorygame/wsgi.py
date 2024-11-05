@@ -11,7 +11,7 @@ if path not in sys.path:
 os.environ['DJANGO_SETTINGS_MODULE'] = 'memorygame.settings'
 
 # Ativar o ambiente virtual
-activate_env = path / 'nome_do_ambiente/bin/activate_this.py'
+activate_env = path / 'venv/bin/activate_this.py'
 exec(open(activate_env).read(), {'__file__': activate_env})
 
 from django.core.wsgi import get_wsgi_application
