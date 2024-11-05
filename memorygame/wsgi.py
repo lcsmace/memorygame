@@ -1,16 +1,18 @@
-"""
-WSGI config for memorygame project.
-
-It exposes the WSGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/3.0/howto/deployment/wsgi/
-"""
-
 import os
+import sys
+from pathlib import Path
+
+# Adicione o caminho do projeto
+path = Path('/home/lcsmacedo/memorygame')
+if path not in sys.path:
+    sys.path.append(str(path))
+
+# Configurações do Django
+os.environ['DJANGO_SETTINGS_MODULE'] = 'memorygame.settings'
+
+# Ativar o ambiente virtual
+activate_env = path / 'venv/bin/activate_this.py'
+exec(open(activate_env).read(), {'__file__': activate_env})
 
 from django.core.wsgi import get_wsgi_application
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'memorygame.settings')
-
 application = get_wsgi_application()
