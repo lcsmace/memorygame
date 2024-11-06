@@ -3,7 +3,7 @@ from .models import Pokemon
 import random
 
 def home(request):
-    return render(request, 'game/home.html')  # Certifique-se de ter o template 'home.html'
+    return render(request, 'game/index.html')  # Certifique-se de ter o template 'home.html'
 
 
 def pokemon_list(request):
