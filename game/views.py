@@ -17,8 +17,20 @@ def pokemon_list(request):
     return render(request, 'game/index.html', {'pokemon_data': pokemon_data})
 
 from django.http import HttpResponse
-from myapp.models import MyModel  # Substitua pelo seu modelo
+from game.models import Pokemon  # Certifique-se de que a importação está correta
+from .fetch_pokemon import fetch_pokemon_data  # Importe a função fetch_pokemon_data
 
 def populate_db(request):
-    MyModel.objects.create(field1='Value1', field2='Value2')  # Adicione os dados que precisar
+    # Use a função fetch_pokemon_data para buscar os dados
+    pokemon_data = fetch_pokemon_data()
+
+    # Popule o banco de dados com os dados obtidos
+    for data in pokemon_data:
+        Pokemon.objects.create(
+            name=data['name'],
+            image=data['image'],
+            evolution_chain=str(data['evolution_chain'])  # Armazene como uma string (ou JSON se preferir)
+        )
+
     return HttpResponse("Banco de dados populado com sucesso!")
+
