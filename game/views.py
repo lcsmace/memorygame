@@ -15,3 +15,10 @@ def pokemon_list(request):
 
     # Renderizar o template e passar os dados dos Pokémon embaralhados
     return render(request, 'game/index.html', {'pokemon_data': pokemon_data})
+
+from django.http import HttpResponse
+from myapp.models import MyModel  # Substitua pelo seu modelo
+
+def populate_db(request):
+    MyModel.objects.create(field1='Value1', field2='Value2')  # Adicione os dados que precisar
+    return HttpResponse("Banco de dados populado com sucesso!")
