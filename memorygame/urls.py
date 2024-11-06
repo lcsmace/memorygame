@@ -19,5 +19,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('game/', include('game.urls')),  # Incluindo as URLs da app 'game'
+    path('', include('game.urls')),  # Redireciona a URL raiz para o app 'game'
 ]
