@@ -1,10 +1,12 @@
 import requests
 from .models import Pokemon
 import json
-import certifi
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def fetch_evolution_chain(species_url):
-    species_response = requests.get(species_url, verify=certifi.where())
+    species_response = requests.get(species_url, verify=False)
     species_data = species_response.json()
     evolution_chain_url = species_data['evolution_chain']['url']
 
