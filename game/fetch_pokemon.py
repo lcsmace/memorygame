@@ -3,30 +3,32 @@ from .models import Pokemon
 import json
 
 def fetch_evolution_chain(species_url):
-    species_response = requests.get(species_url)
+    # Obter o URL da espécie e buscar a cadeia de evolução
+    species_response = requests.get(species_url, verify=False)
     species_data = species_response.json()
     evolution_chain_url = species_data['evolution_chain']['url']
 
-    evolution_response = requests.get(evolution_chain_url)
+    evolution_response = requests.get(evolution_chain_url, verify=False)
     evolution_data = evolution_response.json()
-
+    
     chain = []
     current = evolution_data['chain']
-
+    
     while current:
         species_name = current['species']['name']
         species_info_url = current['species']['url']
-        species_info_response = requests.get(species_info_url)
+        species_info_response = requests.get(species_info_url, verify=False)
         species_info_data = species_info_response.json()
-
-        # Verifica se o ID é menor ou igual a 151
+        
         species_id = species_info_data['id']
         if species_id <= 151:
             chain.append(species_name)
-
-        # Avança para a próxima evolução
-        current = current['evolves_to'][0] if current['evolves_to'] else None
-
+        
+        if current['evolves_to']:
+            current = current['evolves_to'][0]
+        else:
+            current = None
+    
     return chain
 
 def fetch_pokemon_data():
