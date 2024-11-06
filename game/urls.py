@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import populate_db 
 
 urlpatterns = [
     path('', views.home, name='home'),  # View que trata a URL raiz
