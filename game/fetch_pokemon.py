@@ -1,10 +1,10 @@
 import requests
 from .models import Pokemon
 import json
+import certifi
 
 def fetch_evolution_chain(species_url):
-    # Obter o URL da espécie e buscar a cadeia de evolução
-    species_response = requests.get(species_url, verify=False)
+    species_response = requests.get(species_url, verify=certifi.where())
     species_data = species_response.json()
     evolution_chain_url = species_data['evolution_chain']['url']
 
