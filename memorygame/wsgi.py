@@ -11,7 +11,7 @@ if project_path not in sys.path:
 os.environ['DJANGO_SETTINGS_MODULE'] = 'memorygame.settings'
 
 # Ativar o ambiente virtual
-activate_env = '/home/lcsmacedo/memorygame/venv/bin/activate.py'
+activate_env = '/home/lcsmacedo/memorygame/venv/bin/activate'
 exec(open(activate_env).read(), {'__file__': activate_env})
 
 # Aplicação WSGI
