@@ -2,6 +2,10 @@ from django.shortcuts import render
 from .models import Pokemon
 import random
 
+def home(request):
+    return render(request, 'game/home.html')  # Certifique-se de ter o template 'home.html'
+
+
 def pokemon_list(request):
     # Buscar todos os Pokémon salvos no banco de dados SQLite
     pokemon_data = list(Pokemon.objects.all().values('name', 'image', 'evolution_chain'))
