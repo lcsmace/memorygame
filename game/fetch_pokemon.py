@@ -35,7 +35,7 @@ def fetch_evolution_chain(species_url):
 
 def fetch_pokemon_data():
     for id in range(1, 152):
-        response = requests.get(f'http://pokeapi.co/api/v2/pokemon/{id}')
+        response = requests.get(f'https://pokeapi.co/api/v2/pokemon/{id}')
         if response.status_code == 200:
             data = response.json()
             species_url = data['species']['url']
