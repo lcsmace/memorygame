@@ -21,16 +21,18 @@ from game.models import Pokemon  # Certifique-se de que a importação está cor
 from .fetch_pokemon import fetch_pokemon_data  # Importe a função fetch_pokemon_data
 
 def populate_db(request):
-    # Use a função fetch_pokemon_data para buscar os dados
+    print("Iniciando a função populate_db")
     pokemon_data = fetch_pokemon_data()
+    if not pokemon_data:
+        print("Erro: Nenhum dado foi retornado por fetch_pokemon_data")
+        return HttpResponse("Erro ao popular o banco de dados: Nenhum dado encontrado.")
 
-    # Popule o banco de dados com os dados obtidos
     for data in pokemon_data:
+        print(f"Inserindo Pokémon: {data['name']}")
         Pokemon.objects.create(
             name=data['name'],
             image=data['image'],
-            evolution_chain=str(data['evolution_chain'])  # Armazene como uma string (ou JSON se preferir)
+            evolution_chain=str(data['evolution_chain'])
         )
-
     return HttpResponse("Banco de dados populado com sucesso!")
 
