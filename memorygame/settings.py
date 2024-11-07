@@ -27,7 +27,7 @@ SECRET_KEY = '#i-v1#27*r@7^60_u4fbx-6lnyjy2-z500l+4knj6ye&!c-*31'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['memorygame-2kph.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['lcsmacedo.pythonanywhere.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
