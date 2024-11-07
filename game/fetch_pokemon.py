@@ -1,9 +1,6 @@
 import requests
 from .models import Pokemon
 import json
-import urllib3
-
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def fetch_evolution_chain(species_url):
     species_response = requests.get(species_url)
